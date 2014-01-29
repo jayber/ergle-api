@@ -1,3 +1,5 @@
+package ergle
+
 import org.specs2.mutable._
 import org.specs2.runner._
 import org.junit.runner._
@@ -11,7 +13,7 @@ import play.api.test.Helpers._
  * For more information, consult the wiki.
  */
 @RunWith(classOf[JUnitRunner])
-class ApplicationSpec extends Specification {
+class FilesSpec extends Specification {
 
   "Application" should {
 
@@ -19,12 +21,12 @@ class ApplicationSpec extends Specification {
       route(FakeRequest(GET, "/boum")) must beNone
     }
 
-    "render the index page" in new WithApplication {
-      val home = route(FakeRequest(GET, "/")).get
+    "allow files to be PUT" in new WithApplication {
+      val response = route(FakeRequest(PUT, "/files/")).get
 
-      status(home) must equalTo(OK)
-      contentType(home) must beSome.which(_ == "text/html")
-      contentAsString(home) must contain("Your new application is ready.")
+      status(response) must equalTo(OK)
+      contentType(response) must beSome.which(_ == "text/plain")
+      contentAsString(response) must not beEmpty
     }
   }
 }
