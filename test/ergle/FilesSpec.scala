@@ -7,11 +7,6 @@ import org.junit.runner._
 import play.api.test._
 import play.api.test.Helpers._
 
-/**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
- */
 @RunWith(classOf[JUnitRunner])
 class FilesSpec extends Specification {
 
@@ -26,7 +21,7 @@ class FilesSpec extends Specification {
 
       status(response) must equalTo(OK)
       contentType(response) must beSome.which(_ == "text/plain")
-      contentAsString(response) must not beEmpty
+      (contentAsString(response) must not).beEmpty
     }
   }
 }
