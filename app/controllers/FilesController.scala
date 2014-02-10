@@ -24,17 +24,28 @@ class FilesController extends Controller {
   }
 
   def get = Action.async {
-    dataStore.listFiles.map {
-      results =>
-        Ok(<html><body><div id="files">
-          <ul id="fileList"> {
-            results.map { file: ReadFile[BSONValue] =>
-              <li> { file.filename }, {file.id}, {file.uploadDate.map(_.asInstanceOf[Date])} </li> }
-            }
-          </ul>
-        </div></body></html>
-          ).as("text/html")
+    dataStore.listFiles.map (mapResult)
+  }
 
-    }
+  def mapResult(results: List[ReadFile[BSONValue]]) = {
+        Ok(<html>
+          <body>
+            <div id="files">
+              <ul id="fileList">
+                {results.map {
+                file: ReadFile[BSONValue] =>
+                  <li>
+                    {file.filename}
+                    ,
+                    {file.id}
+                    ,
+                    {file.uploadDate.map(_.asInstanceOf[Date])}
+                  </li>
+              }}
+              </ul>
+            </div>
+          </body>
+        </html>
+        ).as("text/html")
   }
 }
