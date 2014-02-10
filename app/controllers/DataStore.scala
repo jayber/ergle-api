@@ -3,25 +3,26 @@ package controllers
 import reactivemongo.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 import javax.inject.{Singleton, Named}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import java.io.{FileInputStream, File}
 import reactivemongo.api.gridfs._
 import reactivemongo.bson._
 import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
 
-trait DataStore {
-  def save(file: File, name: String): Future[String]
-}
-
 @Named
 @Singleton
-class DataStoreImpl extends DataStore {
-
+class DataStore {
   val driver = new MongoDriver
   val connection = driver.connection(List("localhost"))
   val db = connection("ergle")
-
   val gridFS = new GridFS(db, "attachments")
+
+  def listFiles: Future[List[ReadFile[BSONValue]]] = {
+    val foundFile = gridFS.find(BSONDocument())
+    foundFile.collect[List]().recover {
+      case _ => List()
+    }
+  }
 
   def save(file: File, name: String) = {
 

@@ -1,3 +1,5 @@
+package utils
+
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import play.api.Application
