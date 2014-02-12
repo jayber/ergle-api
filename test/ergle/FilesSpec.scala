@@ -55,6 +55,21 @@ class FilesSpec extends Specification with Mockito {
 
       there was one(dataStore).listFiles andThen one(futureFile).map(any)(any)
     }
+
+    "output html wrapper for images" in new WithApplication {
+      val response = route(FakeRequest(GET, "/files/123A.jpg/wrapper")).get
+
+      status(response) must equalTo(OK)
+      contentAsString(response).trim must beEqualTo("""<img src="/files/123A.jpg">""")
+    }
+
+    "output html wrapper for text files" in new WithApplication {
+      val response = route(FakeRequest(GET, "/files/123A.txt/wrapper")).get
+
+      status(response) must equalTo(OK)
+      contentAsString(response).trim must beEqualTo("""<span>this is the file text</span>""")
+    }
+
   }
 
   "Files mapping function" should {

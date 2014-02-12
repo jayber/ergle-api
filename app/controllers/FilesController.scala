@@ -5,8 +5,14 @@ import javax.inject.{Inject, Singleton, Named}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import reactivemongo.api.gridfs.ReadFile
 import reactivemongo.bson.BSONValue
-import java.util.Date
+import scala.concurrent.Future
 
+object FilesController {
+  def idFromFileName(fileName: String) = {
+    val split = fileName.split( """\.""")
+    (split(0), split(1))
+  }
+}
 
 @Named
 @Singleton
@@ -23,29 +29,20 @@ class FilesController extends Controller {
       }
   }
 
-  def get = Action.async {
-    dataStore.listFiles.map (mapResult)
+  def listFiles = Action.async {
+    dataStore.listFiles.map(mapResult)
   }
 
+
   def mapResult(results: List[ReadFile[BSONValue]]) = {
-        Ok(<html>
-          <body>
-            <div id="files">
-              <ul id="fileList">
-                {results.map {
-                file: ReadFile[BSONValue] =>
-                  <li>
-                    {file.filename}
-                    ,
-                    {file.id}
-                    ,
-                    {file.uploadDate.map(_.asInstanceOf[Date])}
-                  </li>
-              }}
-              </ul>
-            </div>
-          </body>
-        </html>
-        ).as("text/html")
+    Ok(views.html.fileList(results))
   }
+
+  def wrapper(fileName: String) = Action.async {
+    request => Future {
+      val (id, extension) = FilesController.idFromFileName(fileName)
+      Ok(views.html.imageWraper(id, extension))
+    }
+  }
+
 }

@@ -8,6 +8,7 @@ import java.io.{FileInputStream, File}
 import reactivemongo.api.gridfs._
 import reactivemongo.bson._
 import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
+import reactivemongo.api.gridfs.{GridFS, ReadFile}
 
 @Named
 @Singleton
