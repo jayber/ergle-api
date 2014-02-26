@@ -21,7 +21,7 @@ class DownloadFileController extends Controller with MongoController{
   def getAttachment(fileName: String) = Action.async { request =>
     val (id, extension) = FilesController.idFromFileName(fileName)
   // find the matching attachment, if any, and streams it to the client
-    val file = dataStore.gridFS.find(BSONDocument("_id" -> new BSONObjectID(id)))
+    val file = dataStore.gridFS.find(BSONDocument("_id" -> BSONObjectID(id)))
     serve(dataStore.gridFS, file, CONTENT_DISPOSITION_INLINE)
   }
 }

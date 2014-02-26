@@ -9,6 +9,7 @@ import reactivemongo.api.gridfs._
 import reactivemongo.bson._
 import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
 import reactivemongo.api.gridfs.{GridFS, ReadFile}
+import java.util.Date
 
 @Named
 @Singleton
@@ -18,16 +19,32 @@ class DataStore {
   val db = connection("ergle")
   val gridFS = new GridFS(db, "attachments")
 
-  def listFiles: Future[List[ReadFile[BSONValue]]] = {
-    val foundFile = gridFS.find(BSONDocument())
+  def listContacts(email: String) = {
+    listFiles(None).map {
+      files => files.map {
+        file => file.metadata.get("email") match {
+          case Some(field: BSONString) => field.value
+          case a => a.toString
+        }
+      }.toSet
+    }
+  }
+
+  def listFiles(emailOpt: Option[String]): Future[List[ReadFile[BSONValue]]] = {
+    val query = emailOpt match {
+      case Some(email) => BSONDocument("metadata.email" -> email)
+      case _ => BSONDocument()
+    }
+    val sort = BSONDocument(("metadata.lastModified", 1))
+    val foundFile = gridFS.find(BSONDocument(("$query", query), ("$orderby", sort)))
     foundFile.collect[List]().recover {
       case _ => List()
     }
   }
 
-  def save(file: File, name: String) = {
-
-    val fileToSave = DefaultFileToSave(name, Some("application/octet-stream"))
+  def save(file: File, name: String, email: String, lastModifiedDate: Long) = {
+    val fileToSave = DefaultFileToSave(name, Some("application/octet-stream"), Some(System.currentTimeMillis()),
+      BSONDocument(("email", email), ("lastModified", BSONDateTime(lastModifiedDate))))
     val futureResult: Future[ReadFile[BSONValue]] = gridFS.writeFromInputStream(fileToSave, new FileInputStream(file))
     futureResult.map {
       readFile =>

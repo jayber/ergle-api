@@ -1,29 +1,23 @@
 @(results: List[reactivemongo.api.gridfs.ReadFile[reactivemongo.bson.BSONValue]])
-@import reactivemongo.api.gridfs.ReadFile
 
-@import reactivemongo.bson.BSONValue
-
-@import reactivemongo.bson.BSONObjectID
-
+@import reactivemongo.bson.BSONDateTime
 @import java.util.Date
 
-<div id="files">
-    <ul id="fileList">
-    @for(file <- results) {
-        <li><span>
-            @file.filename, @file.uploadDate.map(_.asInstanceOf[Date])
-        </span>
-            <a class="loadable" href="/files/@fileIdFileName(file)">@file.filename</a>
-        </li>
-    }
-    </ul>
-</div>
+    <div id="files">
+        <ul id="fileList">
+        @for(file <- results) {
+            <li>
+                <a class="loadable" href="/files/@FilesController.fileIdFileName(file)">@file.filename</a>
+                <div class="title">
+                    <span class="emphasize">
+                        file:
+                    </span>
+                    <span>
+                        @file.filename, @(new Date(file.metadata.getAs[BSONDateTime]("lastModified").get.value))
+                    </span>
+                </div>
+            </li>
+        }
+        </ul>
+    </div>
 
-@* as unlikable as method declaration in jsp - but i haven't yet learned to do an implicit reader thing (see reactivemongo
-mailing list on converting BSONValue to BSONObjectId) *@
-@fileIdFileName(file: ReadFile[BSONValue]) = @{
-    new StringBuilder(file.id match {
-    case theId: BSONObjectID => theId.stringify
-    case _ => throw new RuntimeException("ReadFile.id is not a BSONObjectID")
-    }) + "." + file.filename.split("""\.""")(1)
-}

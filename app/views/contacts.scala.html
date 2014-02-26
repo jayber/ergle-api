@@ -1,0 +1,12 @@
+@(contacts: Set[String])
+
+
+<div id="contacts">
+    <ul id="contactList">
+        @for(contact <- contacts) {
+            <li>
+                <a href="/@contact">@contact</a>
+            </li>
+        }
+    </ul>
+</div>

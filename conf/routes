@@ -2,8 +2,12 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-PUT        /files/              @controllers.FilesController.put
-GET        /files/              @controllers.FilesController.listFiles
-GET        /files/:id/wrapper   @controllers.FilesController.wrapper(id)
-GET        /files/:id           @controllers.DownloadFileController.getAttachment(id)
+PUT        /files/        @controllers.FilesController.put
+GET        /files/        @controllers.FilesController.listFiles()
+GET        /:email/files/        @controllers.FilesController.listFilesForEmail(email)
+GET        /files/:id/wrapper        @controllers.FilesController.wrapper(id)
+GET        /files/:id        @controllers.DownloadFileController.getAttachment(id)
+
+GET        /contacts/        @controllers.ContactsController.contacts()
+GET        /:email/contacts/        @controllers.ContactsController.contactsForEmail(email)
 
