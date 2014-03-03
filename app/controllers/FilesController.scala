@@ -1,4 +1,4 @@
-package controllers.ergleapi
+package controllers
 
 import reactivemongo.api.gridfs.ReadFile
 import reactivemongo.bson.{BSONObjectID, BSONDocument, BSONValue}
@@ -35,7 +35,10 @@ class FilesController extends Controller {
 
   def put = Action.async(parse.temporaryFile) {
     request =>
-      dataStore.save(request.body.file, request.getQueryString("filename").getOrElse("unknown-file"), request.getQueryString("email").get, request.getQueryString("lastModified").get.toLong).map {
+      dataStore.save(request.body.file,
+        request.getQueryString("filename").getOrElse("unknown-file"),
+        request.getQueryString("email").get,
+        request.getQueryString("lastModified").get.toLong).map {
         id =>
           Ok(id)
       }
@@ -72,36 +75,15 @@ class FilesController extends Controller {
         case "gif" => imageWrapper(id, extension)
         case "svg" => imageWrapper(id, extension)
         case "txt" =>
-          val cursor = dataStore.gridFS.find(BSONDocument("_id" -> BSONObjectID(id)))
-          cursor.headOption.map({
+          val fileFuture = dataStore.findFileById(id)
+          fileFuture.map {
             file =>
-              Ok(views.html.textWrapper(fileText(file)))
-          })
+              Ok(views.html.textWrapper(dataStore.fileText(file)))
+          }
         case _ => Future {
           NotFound("")
         }
       }
-  }
-
-
-  def fileText(file: Option[ReadFile[BSONValue]]): String = {
-    file match {
-      case Some(realFile) =>
-        val fileText = new StringBuilder
-        Await.result(dataStore.gridFS.enumerate(realFile).apply {
-          Iteratee.fold[Array[Byte], StringBuilder](fileText) {
-            (text, chunk) => {
-              chunk.map {
-                x =>
-                  text.append(x.toChar)
-              }
-              text // this is kind of a cheat, should probably use fold or collect to get accumulated values
-            }
-          }
-        }, Duration(10, TimeUnit.SECONDS))
-        fileText.toString()
-      case None => "no file found"
-    }
   }
 
   def imageWrapper(id: String, extension: String) = {

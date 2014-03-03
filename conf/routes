@@ -2,10 +2,10 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-PUT        /files/        @controllers.ergleapi.FilesController.put
-GET        /files/        @controllers.ergleapi.FilesController.listFiles()
-GET        /:email/files/        @controllers.ergleapi.FilesController.listFilesForEmail(email)
-GET        /files/:id/wrapper        @controllers.ergleapi.FilesController.wrapper(id)
+PUT        /files/        @controllers.FilesController.put
+GET        /files/        @controllers.FilesController.listFiles()
+GET        /:email/files/        @controllers.FilesController.listFilesForEmail(email)
+GET        /files/:id/wrapper        @controllers.FilesController.wrapper(id)
 GET        /files/:id        @controllers.ergleapi.DownloadFileController.getAttachment(id)
 
 GET        /contacts/        @controllers.ergleapi.ContactsController.contacts()

@@ -3,12 +3,19 @@ package controllers.ergleapi
 import reactivemongo.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 import javax.inject.{Singleton, Named}
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import java.io.{FileInputStream, File}
 import reactivemongo.api.gridfs._
 import reactivemongo.bson._
 import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
 import reactivemongo.api.gridfs.{GridFS, ReadFile}
+import reactivemongo.api.gridfs.DefaultFileToSave
+import reactivemongo.bson.BSONDateTime
+import reactivemongo.bson.BSONString
+import scala.Some
+import play.api.libs.iteratee.Iteratee
+import scala.concurrent.duration.Duration
+import java.util.concurrent.TimeUnit
 
 @Named
 @Singleton
@@ -17,6 +24,32 @@ class DataStore {
   val connection = driver.connection(List("localhost"))
   val db = connection("ergle")
   val gridFS = new GridFS(db, "attachments")
+
+
+  def fileText(file: Option[ReadFile[BSONValue]]): String = {
+    file match {
+      case None => "no file found"
+      case Some(realFile) =>
+        val fileText = new StringBuilder
+        Await.result(gridFS.enumerate(realFile).apply {
+          Iteratee.fold[Array[Byte], StringBuilder](fileText) {
+            (text, chunk) => {
+              chunk.map {
+                x =>
+                  text.append(x.toChar)
+              }
+              text // this is kind of a cheat, should probably use fold or collect to get accumulated values
+            }
+          }
+        }, Duration(10, TimeUnit.SECONDS))
+        fileText.toString()
+    }
+  }
+
+  def findFileById(id: String) = {
+    val cursor = gridFS.find(BSONDocument("_id" -> BSONObjectID(id)))
+    cursor.headOption
+  }
 
   def listContacts(email: String) = {
     listFiles(None).map {

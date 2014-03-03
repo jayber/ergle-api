@@ -6,7 +6,6 @@ import org.junit.runner._
 
 import play.api.test._
 import play.api.test.Helpers._
-import scala.xml.{NodeSeq, XML}
 import org.specs2.mock.Mockito
 import utils.Global
 import java.io.File
@@ -14,9 +13,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import ExecutionContext.Implicits.global
 import reactivemongo.api.gridfs.ReadFile
 import reactivemongo.bson.BSONValue
-import play.api.mvc.Action
-import java.util.Date
-import controllers.ergleapi.{DataStore, FilesController}
+import play.api.mvc.{Cookie, Action}
+import controllers.ergleapi.DataStore
+import controllers.FilesController
 
 @RunWith(classOf[JUnitRunner])
 class FilesSpec extends Specification with Mockito {
@@ -42,18 +41,19 @@ class FilesSpec extends Specification with Mockito {
 
     }
 
+
     "retrieve list of files" in new WithApplication {
 
       val filesController = Global.ctx.getBean(classOf[FilesController])
       val dataStore = mock[DataStore]
       filesController.dataStore = dataStore
       val futureFile = mock[Future[List[ReadFile[BSONValue]]]]
-      dataStore.listFiles returns futureFile
+      val email = "email"
+      dataStore.listFiles(Some(email)) returns futureFile
 
+      val response = route(FakeRequest(GET, "/files/").withHeaders(("Accept", "text/html")).withCookies(new Cookie("email",email))).get
 
-      val response = route(FakeRequest(GET, "/files/").withHeaders(("Accept", "text/html"))).get
-
-      there was one(dataStore).listFiles andThen one(futureFile).map(any)(any)
+      there was one(dataStore).listFiles(Some(email)) andThen one(futureFile).map(any)(any)
     }
 
     "output html wrapper for images" in new WithApplication {
@@ -64,6 +64,12 @@ class FilesSpec extends Specification with Mockito {
     }
 
     "output html wrapper for text files" in new WithApplication {
+      val filesController = Global.ctx.getBean(classOf[FilesController])
+      val dataStore = mock[DataStore]
+      filesController.dataStore = dataStore
+      val future = mock[Future[Option[Nothing]]]
+      dataStore.findFileById(anyString) returns future
+      dataStore.fileText(any) returns "this is the file text"
       val response = route(FakeRequest(GET, "/files/123A.txt/wrapper")).get
 
       status(response) must equalTo(OK)
@@ -72,10 +78,4 @@ class FilesSpec extends Specification with Mockito {
 
   }
 
-  "Files mapping function" should {
-    "work" in new WithApplication {
-      //todo: needs proper html type test
-    }
-
-  }
 }
