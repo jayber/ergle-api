@@ -1,4 +1,4 @@
-package controllers
+package controllers.ergleapi
 
 import javax.inject.{Inject, Singleton, Named}
 import play.api.mvc.{Controller, Action}

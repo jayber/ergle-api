@@ -1,4 +1,4 @@
-package controllers
+package controllers.ergleapi
 
 import play.modules.reactivemongo.MongoController
 import play.api.mvc.{Action, Controller}
@@ -6,6 +6,7 @@ import reactivemongo.bson.{BSONObjectID, BSONDocument}
 import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import javax.inject.{Singleton, Named, Inject}
+import controllers.ergleapi.DataStore
 
 /**
  * I just copied this from reactivemongo example 'cos I couldn't figure the fucking thing out...

@@ -1,15 +1,14 @@
-package controllers
+package controllers.ergleapi
 
 import reactivemongo.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 import javax.inject.{Singleton, Named}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import java.io.{FileInputStream, File}
 import reactivemongo.api.gridfs._
 import reactivemongo.bson._
 import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
 import reactivemongo.api.gridfs.{GridFS, ReadFile}
-import java.util.Date
 
 @Named
 @Singleton

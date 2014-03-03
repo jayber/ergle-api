@@ -9,7 +9,6 @@ import play.api.test.Helpers._
 import scala.xml.{NodeSeq, XML}
 import org.specs2.mock.Mockito
 import utils.Global
-import controllers.{FilesController, DataStore}
 import java.io.File
 import scala.concurrent.{ExecutionContext, Future}
 import ExecutionContext.Implicits.global
@@ -17,6 +16,7 @@ import reactivemongo.api.gridfs.ReadFile
 import reactivemongo.bson.BSONValue
 import play.api.mvc.Action
 import java.util.Date
+import controllers.ergleapi.{DataStore, FilesController}
 
 @RunWith(classOf[JUnitRunner])
 class FilesSpec extends Specification with Mockito {

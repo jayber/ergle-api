@@ -1,17 +1,16 @@
-package controllers
+package controllers.ergleapi
 
 import reactivemongo.api.gridfs.ReadFile
 import reactivemongo.bson.{BSONObjectID, BSONDocument, BSONValue}
 import scala.concurrent.{Await, Future}
-import play.api.mvc.{SimpleResult, AnyContent, Action, Controller}
+import play.api.mvc.{SimpleResult, Action, Controller}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import javax.inject.{Singleton, Named, Inject}
 import play.api.libs.iteratee.Iteratee
-import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
-import play.mvc.Http.Request
-import play.mvc.Result
+import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
+import controllers.ergleapi.DataStore
 
 object FilesController {
   def idFromFileName(fileName: String) = {
