@@ -1,1 +1,1 @@
-sudo bin/ergle-api -Dhttp.port=9002 2> /dev/null &
+sudo bin/ergle-api "-Dhttp.port=9002 -Xmx750m -Xms750m" 2> /dev/null &
