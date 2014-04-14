@@ -14,8 +14,8 @@ import ExecutionContext.Implicits.global
 import reactivemongo.api.gridfs.ReadFile
 import reactivemongo.bson.BSONValue
 import play.api.mvc.{Cookie, Action}
-import controllers.ergleapi.DataStore
 import controllers.FilesController
+import services.FileDataStore
 
 @RunWith(classOf[JUnitRunner])
 class FilesSpec extends Specification with Mockito {
@@ -29,7 +29,7 @@ class FilesSpec extends Specification with Mockito {
     "allow files to be PUT" in new WithApplication {
 
       val filesController = Global.ctx.getBean(classOf[FilesController])
-      val dataStore = mock[DataStore]
+      val dataStore = mock[FileDataStore]
       filesController.dataStore = dataStore
 
       dataStore.save(any[File], anyString, anyString, anyLong) returns Future("id")
@@ -45,7 +45,7 @@ class FilesSpec extends Specification with Mockito {
     "retrieve list of files" in new WithApplication {
 
       val filesController = Global.ctx.getBean(classOf[FilesController])
-      val dataStore = mock[DataStore]
+      val dataStore = mock[FileDataStore]
       filesController.dataStore = dataStore
       val futureFile = mock[Future[List[ReadFile[BSONValue]]]]
       val email = "email"
@@ -65,7 +65,7 @@ class FilesSpec extends Specification with Mockito {
 
     "output html wrapper for text files" in new WithApplication {
       val filesController = Global.ctx.getBean(classOf[FilesController])
-      val dataStore = mock[DataStore]
+      val dataStore = mock[FileDataStore]
       filesController.dataStore = dataStore
       val future = mock[Future[Option[Nothing]]]
       dataStore.findFileById(anyString) returns future

@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton, Named}
 import play.api.mvc.{Controller, Action}
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import services.FileDataStore
 
 
 @Named
@@ -11,7 +12,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 class ContactsController extends Controller {
 
   @Inject
-  var dataStore: DataStore = null
+  var dataStore: FileDataStore = null
 
   def contacts = Action.async { request =>
     request.cookies.get("email") match {

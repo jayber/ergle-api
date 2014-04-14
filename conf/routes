@@ -8,6 +8,8 @@ GET        /:email/files/        @controllers.FilesController.listFilesForEmail(
 GET        /files/:id/wrapper        @controllers.FilesController.wrapper(id)
 GET        /files/:id        @controllers.ergleapi.DownloadFileController.getAttachment(id)
 
+PUT        /emails/         @controllers.EmailsController.put
+
 GET        /contacts/        @controllers.ergleapi.ContactsController.contacts()
 GET        /:email/contacts/        @controllers.ergleapi.ContactsController.contactsForEmail(email)
 

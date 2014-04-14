@@ -1,4 +1,4 @@
-package controllers.ergleapi
+package services
 
 import reactivemongo.api._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,10 +19,7 @@ import java.util.concurrent.TimeUnit
 
 @Named
 @Singleton
-class DataStore {
-  val driver = new MongoDriver
-  val connection = driver.connection(List("localhost"))
-  val db = connection("ergle")
+class FileDataStore extends DataStore{
   val gridFS = new GridFS(db, "attachments")
 
 

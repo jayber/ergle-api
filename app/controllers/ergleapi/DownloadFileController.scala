@@ -6,8 +6,8 @@ import reactivemongo.bson.{BSONObjectID, BSONDocument}
 import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import javax.inject.{Singleton, Named, Inject}
-import controllers.ergleapi.DataStore
 import controllers.FilesController
+import services.FileDataStore
 
 /**
  * I just copied this from reactivemongo example 'cos I couldn't figure the fucking thing out...
@@ -18,7 +18,7 @@ import controllers.FilesController
 class DownloadFileController extends Controller with MongoController{
 
   @Inject
-  var dataStore: DataStore = null
+  var dataStore: FileDataStore = null
 
   def getAttachment(fileName: String) = Action.async { request =>
     val (id, extension) = FilesController.idFromFileName(fileName)

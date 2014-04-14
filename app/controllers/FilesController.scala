@@ -10,7 +10,7 @@ import play.api.libs.iteratee.Iteratee
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
-import controllers.ergleapi.DataStore
+import services.FileDataStore
 
 object FilesController {
   def idFromFileName(fileName: String) = {
@@ -31,7 +31,7 @@ object FilesController {
 class FilesController extends Controller {
 
   @Inject
-  var dataStore: DataStore = null
+  var dataStore: FileDataStore = null
 
   def put = Action.async(parse.temporaryFile) {
     request =>
@@ -88,7 +88,7 @@ class FilesController extends Controller {
 
   def imageWrapper(id: String, extension: String) = {
     Future {
-      Ok(views.html.imageWraper(id, extension))
+      Ok(views.html.imageWrapper(id, extension))
     }
   }
 }

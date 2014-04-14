@@ -8,15 +8,15 @@
     <ul id="fileList">
     @for(file <- results) {
         <li>
-            <a class="loadable" href="/files/@FilesController.fileIdFileName(file)">@file.filename</a>
             <div class="title">
                 <span class="emphasize">
                         file:
                 </span>
                 <span>
-                    @file.filename, @(new Date(file.metadata.getAs[BSONDateTime]("lastModified").get.value))
+                    <a class="filename" href="/files/@FilesController.fileIdFileName(file)">@file.filename</a>, @(new Date(file.metadata.getAs[BSONDateTime]("lastModified").get.value))
                 </span>
             </div>
+            <a class="loadable" href="/files/@FilesController.fileIdFileName(file)">@file.filename</a>
         </li>
     }
     </ul>
