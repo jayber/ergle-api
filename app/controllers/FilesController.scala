@@ -11,6 +11,8 @@ import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
 import services.FileDataStore
+import java.io.{ByteArrayInputStream, File}
+import play.api.Logger
 
 object FilesController {
   def idFromFileName(fileName: String) = {
@@ -33,16 +35,20 @@ class FilesController extends Controller {
   @Inject
   var dataStore: FileDataStore = null
 
-  def put = Action.async(parse.temporaryFile) {
+  def put = {
+    val file = File.createTempFile("ergle","tmp")
+    Logger.debug(s"temp file: ${file.getAbsolutePath}")
+    Action.async(parse.file(file)) {
     request =>
-      dataStore.save(request.body.file,
+      dataStore.save(request.body,
         request.getQueryString("filename").getOrElse("unknown-file"),
         request.getQueryString("email").get,
         request.getQueryString("lastModified").get.toLong).map {
         id =>
+          file.delete()
           Ok(id)
       }
-  }
+  }}
 
   def listFiles = Action.async { request =>
     request.cookies.get("email") match {
