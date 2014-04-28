@@ -4,7 +4,8 @@ import javax.inject.{Inject, Singleton, Named}
 import play.api.mvc.{Controller, Action}
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import services.FileDataStore
+import services.{EmailDataStore, FileDataStore}
+import scala.collection.SortedSet
 
 
 @Named
@@ -12,7 +13,10 @@ import services.FileDataStore
 class ContactsController extends Controller {
 
   @Inject
-  var dataStore: FileDataStore = null
+  var fileDataStore: FileDataStore = null
+
+  @Inject
+  var emailDataStore: EmailDataStore = null
 
   def contacts = Action.async { request =>
     request.cookies.get("email") match {
@@ -25,9 +29,16 @@ class ContactsController extends Controller {
     getContacts(email)
   }
 
+  def merge(set: Set[String], set2: Set[String]) = {
+    (List() ++ (set ++ set2)).sortBy(_.toString)
+  }
+
   def getContacts(email: String) = {
-    dataStore.listContacts(email).map {
-      contacts =>
+    val contactsFuture = for {
+      fileContacts <- fileDataStore.listContacts(email)
+      emailContacts <- emailDataStore.listContacts(email)
+      } yield merge(fileContacts, emailContacts)
+    contactsFuture.map { contacts =>
       Ok(views.html.contacts(contacts))
     }
   }

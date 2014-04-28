@@ -51,6 +51,7 @@ class FileDataStore extends DataStore{
   def listContacts(email: String) = {
     listFiles(None).map {
       files => files.map {
+            //todo: should use projection instead of post hoc mapping
         file => file.metadata.get("email") match {
           case Some(field: BSONString) => field.value
           case a => a.toString

@@ -6,7 +6,6 @@ import reactivemongo.bson.{BSONObjectID, BSONDocument}
 import reactivemongo.api.gridfs.Implicits.DefaultReadFileReader
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import javax.inject.{Singleton, Named, Inject}
-import controllers.FilesController
 import services.FileDataStore
 
 /**

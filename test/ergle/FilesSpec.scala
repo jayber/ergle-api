@@ -14,8 +14,8 @@ import ExecutionContext.Implicits.global
 import reactivemongo.api.gridfs.ReadFile
 import reactivemongo.bson.BSONValue
 import play.api.mvc.{Cookie, Action}
-import controllers.FilesController
 import services.FileDataStore
+import controllers.ergleapi.FilesController
 
 @RunWith(classOf[JUnitRunner])
 class FilesSpec extends Specification with Mockito {
@@ -33,7 +33,7 @@ class FilesSpec extends Specification with Mockito {
       filesController.dataStore = dataStore
 
       dataStore.save(any[File], anyString, anyString, anyLong) returns Future("id")
-      val response = route(FakeRequest(PUT, "/files/")).get
+      val response = route(FakeRequest(PUT, "/files/?email=test@test.com&lastModified=123456")).get
 
       status(response) must equalTo(OK)
       contentType(response) must beSome.which(_ == "text/plain")
@@ -67,11 +67,12 @@ class FilesSpec extends Specification with Mockito {
       val filesController = Global.ctx.getBean(classOf[FilesController])
       val dataStore = mock[FileDataStore]
       filesController.dataStore = dataStore
+
       val future = mock[Future[Option[Nothing]]]
       dataStore.findFileById(anyString) returns future
       dataStore.fileText(any) returns "this is the file text"
-      val response = route(FakeRequest(GET, "/files/123A.txt/wrapper")).get
 
+      val response = route(FakeRequest(GET, "/files/123A.txt/wrapper")).get
       status(response) must equalTo(OK)
       contentAsString(response).trim must beEqualTo("""<span>this is the file text</span>""")
     }
