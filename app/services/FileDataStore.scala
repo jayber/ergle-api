@@ -1,6 +1,5 @@
 package services
 
-import reactivemongo.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 import javax.inject.{Singleton, Named}
 import scala.concurrent.{Await, Future}
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit
 
 @Named
 @Singleton
-class FileDataStore extends DataStore{
+class FileDataStore extends DataStore {
   val gridFS = new GridFS(db, "attachments")
 
 
@@ -51,7 +50,7 @@ class FileDataStore extends DataStore{
   def listContacts(email: String) = {
     listFiles(None).map {
       files => files.map {
-            //todo: should use projection instead of post hoc mapping
+        //todo: should use projection instead of post hoc mapping
         file => file.metadata.get("email") match {
           case Some(field: BSONString) => field.value
           case a => a.toString
@@ -61,10 +60,11 @@ class FileDataStore extends DataStore{
   }
 
   def listFiles(emailOpt: Option[String]): Future[List[ReadFile[BSONValue]]] = {
-    val query = emailOpt match {
+    var query = emailOpt match {
       case Some(email) => BSONDocument("metadata.email" -> email)
       case _ => BSONDocument()
     }
+    query = query ++ ("metadata.source" -> "event")
     val sort = BSONDocument(("metadata.lastModified", 1))
     val foundFile = gridFS.find(BSONDocument(("$query", query), ("$orderby", sort)))
     foundFile.collect[List]().recover {
@@ -72,9 +72,15 @@ class FileDataStore extends DataStore{
     }
   }
 
-  def save(file: File, name: String, email: String, lastModifiedDate: Long) = {
+  def save(file: File, name: String, email: String, lastModifiedDate: Option[Long], source: Option[String]) = {
     val fileToSave = DefaultFileToSave(name, Some("application/octet-stream"), Some(System.currentTimeMillis()),
-      BSONDocument(("email", email), ("lastModified", BSONDateTime(lastModifiedDate))))
+      BSONDocument(
+        ("email", email),
+        ("lastModified", BSONDateTime(lastModifiedDate match {
+          case Some(value) => value
+          case None => System.currentTimeMillis()
+        })),
+        ("source", source.getOrElse("event"))))
     val futureResult: Future[ReadFile[BSONValue]] = gridFS.writeFromInputStream(fileToSave, new FileInputStream(file))
     futureResult.map {
       readFile =>

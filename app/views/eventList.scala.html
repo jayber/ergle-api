@@ -2,24 +2,33 @@
 
 @import models.Event
 
-<div id="files">
-    <ul id="fileList">
-    @for(event <- results) {
-        <li>
-            <div class="title">
-                <span class="emphasize">
-                    @event.eventType
-                </span>
-                <span>
-                    <a class="filename" href="@event.link">@event.title</a>, @event.sortDate
-                </span>
-            </div>
-            <div class="loadable" href="@event.link">
-                <a class="" href="@event.link">@event.title</a>
-            </div>
-        </li>
+<div id="events">
+    @results.size match {
+        case 0 => {
+            <ul id="eventList">
+                <li class="emptyMessage">Your work here</li>
+            </ul>
+        }
+        case _ => {
+            <ul id="eventList">
+            @for(event <- results) {
+                <li>
+                    <div class="title">
+                        <span class="emphasize">
+                        @event.eventType
+                        </span>
+                        <span>
+                            <a class="filename" href="@event.link">@event.title</a>, @event.sortDate
+                        </span>
+                    </div>
+                    <div class="loadable" href="@event.link">
+                        <a class="" href="@event.link">@event.title</a>
+                    </div>
+                </li>
+            }
+            </ul>
+        }
     }
-    </ul>
 </div>
 
 

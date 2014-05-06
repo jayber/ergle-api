@@ -3,12 +3,13 @@ package controllers.ergleapi
 import reactivemongo.api.gridfs.ReadFile
 import reactivemongo.bson.{BSONObjectID, BSONValue}
 import scala.concurrent.Future
-import play.api.mvc.{SimpleResult, Action, Controller}
+import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import javax.inject.{Singleton, Named, Inject}
 import services.FileDataStore
 import java.io.File
 import play.api.Logger
+import play.api.libs.iteratee.Iteratee
 
 object FilesController {
   def idFromFileName(fileName: String) = {
@@ -20,7 +21,13 @@ object FilesController {
     new StringBuilder(file.id match {
       case theId: BSONObjectID => theId.stringify
       case _ => throw new RuntimeException("ReadFile.id is not a BSONObjectID")
-    }) + "." + file.filename.split( """\.""")(1)
+    }) + "." + extension(file.filename)
+  }
+
+  def extension(filename: String) = filename.split( """\.""").last
+
+  def synthesizeFilename(id: String, filename: String) = {
+    id + "." + extension(filename)
   }
 }
 
@@ -39,7 +46,9 @@ class FilesController extends Controller {
       dataStore.save(request.body,
         request.getQueryString("filename").getOrElse("unknown-file"),
         request.getQueryString("email").get,
-        request.getQueryString("lastModified").get.toLong).map {
+        request.getQueryString("lastModified").map(_.toLong),
+        request.getQueryString("source")
+      ).map {
         id =>
           tempFile.delete()
           Ok(id)

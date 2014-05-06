@@ -3,10 +3,15 @@ package models
 import java.util.Date
 
 case class Email(owner: String,
-                 from: Array[String],
-                 recipients: Array[String],
+                 from: String,
+                 to: Array[String],
+                 cc: Option[Array[String]],
                  subject: String,
-                 content: String ,
+                 body: Array[AnyRef],
                  receivedDate: Date,
-                 replyTo: Array[String],
-                 sentDate: Date)
+                 replyTo: Option[Array[String]])
+
+case class InlineEmailBody(mimeType: String,
+                      content: String)
+
+case class AttachmentEmailBody(fileId: String, filename: String)
