@@ -51,7 +51,9 @@ class EmailDataStore extends DataStore {
 
   def save(email: (String, Message)) = {
     val (owner, message) = email
+    val id = BSONObjectID.generate
     collection.insert(BSONDocument(
+      "_id" -> id,
       "ownerEmail" -> owner,
       "from" -> message.getFrom.get(0).getAddress,
       "subject" -> message.getSubject,
@@ -60,7 +62,10 @@ class EmailDataStore extends DataStore {
       "to" -> message.getTo,
       "cc" -> message.getCc,
       "body" -> parseContent(message, owner)
-    ))
+    )).flatMap(lastError =>
+        saveEvent(owner,Some(message.getDate.getTime),message.getSubject,"email",
+          s"""/emails/${id.stringify}""", None)
+      )
   }
 
   def parseContent(message: Entity, owner: String): Array[BSONDocument] = {

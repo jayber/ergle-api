@@ -2,27 +2,39 @@
 
 @import models.Event
 
-<div id="events">
+<div class="events">
     @results.size match {
         case 0 => {
-            <ul id="eventList">
+            <ul class="eventList">
                 <li class="emptyMessage">Your work here</li>
             </ul>
         }
         case _ => {
-            <ul id="eventList">
+            <ul class="eventList">
             @for(event <- results) {
                 <li>
-                    <div class="title">
-                        <span class="emphasize">
-                        @event.eventType
-                        </span>
-                        <span>
-                            <a class="filename" href="@event.link">@event.title</a>, @event.sortDate
-                        </span>
+                    <div class="@(event.tag match {case Some(name) => "tag_"+name; case None => "notTagged"})">
+                        <span class="dateCategory">@event.dateCategory</span>
+                        <div class="title">
+                            @event.sortDate.format("HH:mm"),
+                            <span class="emphasize">
+                            @event.eventType
+                            </span>
+                            <a class="eventTitle" href="@event.link">@event.title</a>
+                            @event.tag match {
+                            case Some(name) => {,
+                            tag: <span class="emphasize">@name</span>}
+                            case None => {}
+                        }
+                        </div>
+                        <div class="body loadable" href="@event.link/wrapper">
+                            <a class="" href="@event.link">@event.title</a>
+                        </div>
                     </div>
-                    <div class="loadable" href="@event.link">
-                        <a class="" href="@event.link">@event.title</a>
+                    <div class="comment">
+                        <textarea placeholder="Write a comment" name="body"></textarea>
+                        <span>ctrl+Enter or <button>Post</button></span>
+                        <div style="clear: both"></div>
                     </div>
                 </li>
             }
@@ -30,5 +42,4 @@
         }
     }
 </div>
-
 

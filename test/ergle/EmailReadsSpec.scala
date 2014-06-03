@@ -36,8 +36,6 @@ class EmailReadsSpec extends Specification {
 
       val format: SimpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS z")
 
-      val email = emailResult.get
-
       success
 /*
       email.from(0) must beEqualTo("james bromley <james.a.bromley@gmail.com>") and

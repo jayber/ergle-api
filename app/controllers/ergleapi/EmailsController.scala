@@ -43,13 +43,14 @@ class EmailsController extends Controller {
       request.body.validate[EmailRequest](EmailsController.emailReads) match {
         case s: JsSuccess[EmailRequest] => {
           val emailRequest: EmailRequest = s.get
-          dataStore.save(parseContent(emailRequest)).onFailure {
+          val saveFuture = dataStore.save(parseContent(emailRequest))
+          saveFuture.onFailure {
             case t: Throwable => Logger.error("save email error", t)
           }
-
-          Future {
-            Ok("")
-          }
+          saveFuture.map(lastError => lastError.ok match {
+            case true => Ok("")
+            case false => InternalServerError(lastError.message)
+          })
         }
         case e: JsError => {
           Future {
@@ -60,10 +61,10 @@ class EmailsController extends Controller {
   }
 
 
-def wrapper (id: String) = Action.async {
-dataStore.find (id).map {
-case Some (email) => Ok (views.html.emailWrapper (email) )
-case None => NotFound (s"id $id not found")
-}
-}
+  def wrapper(id: String) = Action.async {
+    dataStore.find(id).map {
+      case Some(email) => Ok(views.html.emailWrapper(email))
+      case None => NotFound(s"id $id not found")
+    }
+  }
 }

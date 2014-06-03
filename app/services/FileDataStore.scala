@@ -15,13 +15,25 @@ import scala.Some
 import play.api.libs.iteratee.Iteratee
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
+import controllers.ergleapi.FilesController
 
 @Named
 @Singleton
 class FileDataStore extends DataStore {
+
   val gridFS = new GridFS(db, "attachments")
 
+  def exists(email: String, filename: String, lastModified: Long) = {
+    gridFS.find(BSONDocument(
+      ("metadata.email", email),
+      ("filename", filename),
+      ("metadata.lastModified", BSONDateTime(lastModified)))).headOption.map {
+      case Some(_) => true
+      case None => false
+    }
+  }
 
+  //todo: can't this be done with gridfs.readToOputputStream more easily instead?
   def fileText(file: Option[ReadFile[BSONValue]]): String = {
     file match {
       case None => "no file found"
@@ -50,7 +62,7 @@ class FileDataStore extends DataStore {
   def listContacts(email: String) = {
     listFiles(None).map {
       files => files.map {
-        //todo: should use projection instead of post hoc mapping
+        //todo: should use query projection instead of post hoc mapping
         file => file.metadata.get("email") match {
           case Some(field: BSONString) => field.value
           case a => a.toString
@@ -72,15 +84,23 @@ class FileDataStore extends DataStore {
     }
   }
 
-  def save(file: File, name: String, email: String, lastModifiedDate: Option[Long], source: Option[String]) = {
+  def saveFileEvent(file: File, name: String, email: String, lastModifiedDate: Option[Long], source: Option[String], tag: Option[String]): Future[String] = {
+    saveFileOnly(file,name,email,lastModifiedDate,source,tag).flatMap(id =>
+    saveEvent(email, lastModifiedDate, name, "file",
+      s"/files/${FilesController.fileIdFileName(id,name)}", tag).map(_ => id)
+    )
+  }
+
+  def saveFileOnly(file: File, name: String, email: String, lastModifiedDate: Option[Long], source: Option[String], tag: Option[String]) = {
     val fileToSave = DefaultFileToSave(name, Some("application/octet-stream"), Some(System.currentTimeMillis()),
       BSONDocument(
         ("email", email),
-        ("lastModified", BSONDateTime(lastModifiedDate match {
-          case Some(value) => value
-          case None => System.currentTimeMillis()
-        })),
-        ("source", source.getOrElse("event"))))
+        ("lastModified", BSONDateTime(lastModifiedDate.getOrElse(System.currentTimeMillis()))),
+        ("source", source.getOrElse("event")),
+        ("tag", tag)
+      )
+    )
+
     val futureResult: Future[ReadFile[BSONValue]] = gridFS.writeFromInputStream(fileToSave, new FileInputStream(file))
     futureResult.map {
       readFile =>
@@ -90,4 +110,5 @@ class FileDataStore extends DataStore {
         }
     }
   }
+
 }

@@ -3,9 +3,10 @@
 # ~~~~
 
 GET        /events/                   @controllers.ergleapi.EventsController.listEvents()
-GET        /:email/events/            @controllers.ergleapi.EventsController.listEventsForEmail(email)
+GET        /events/:email             @controllers.ergleapi.EventsController.listEventsForEmail(email)
+PUT        /events/:email/files/      @controllers.ergleapi.FilesController.put(email)
 
-PUT        /files/                    @controllers.ergleapi.FilesController.put
+PUT        /files/                    @controllers.ergleapi.FilesController.putBare(email)
 GET        /files/:id/wrapper         @controllers.ergleapi.FilesController.wrapper(id)
 GET        /files/:id                 @controllers.ergleapi.DownloadFileController.getAttachment(id)
 
