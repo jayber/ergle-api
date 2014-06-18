@@ -12,12 +12,12 @@
         case _ => {
             <ul class="eventList">
             @for(event <- results) {
-                <li>
-                    <div class="@(event.tag match {case Some(name) => "tag_"+name; case None => "notTagged"})">
+                <li id="@event.id" @if(event.sortDate.getTime > System.currentTimeMillis) {class="future"} >
+                    <div class="defaultTag @(event.tag match {case Some(name) => "tag_"+name; case None => ""})">
                         <span class="dateCategory">@event.dateCategory</span>
                         <div class="title">
-                            @event.sortDate.format("HH:mm"),
-                            <span class="emphasize">
+                            @event.sortDate.format("HH:mm")
+                            <span class="eventType @event.eventType">
                             @event.eventType
                             </span>
                             <a class="eventTitle" href="@event.link">@event.title</a>
@@ -31,10 +31,14 @@
                             <a class="" href="@event.link">@event.title</a>
                         </div>
                     </div>
-                    <div class="comment">
+                    <div class="comments">
+                        <ul>
+                        @for(aComment <- event.comments.getOrElse(Array())) {
+                            @comment(aComment.dateCategory,aComment.createDate,aComment.email,aComment.content)
+                        }</ul>
                         <textarea placeholder="Write a comment" name="body"></textarea>
-                        <span>ctrl+Enter or <button>Post</button></span>
-                        <div style="clear: both"></div>
+                        <span class="controls">ctrl+Enter or <button>Post</button></span>
+                        <div class="clear"></div>
                     </div>
                 </li>
             }

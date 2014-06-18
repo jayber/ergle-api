@@ -1,0 +1,7 @@
+@(dateCategory: String, createdDate: java.util.Date, email: String, comment: String)
+
+@import controllers.ergleapi.ControllerUtils
+
+<li class="comment"><span class="date">@createdDate.format("HH:mm") @dateCategory</span> <a href="/@email">@email</a>
+    <span class="content"> @Html(ControllerUtils.formatUserInput(comment))</span>
+</li>

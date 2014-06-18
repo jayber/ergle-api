@@ -2,19 +2,24 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET        /events/                   @controllers.ergleapi.EventsController.listEvents()
-GET        /events/:email             @controllers.ergleapi.EventsController.listEventsForEmail(email)
-PUT        /events/:email/files/      @controllers.ergleapi.FilesController.put(email)
+GET         /events/                     @controllers.ergleapi.EventsController.listEvents()
+POST        /events/                     @controllers.ergleapi.EventsController.post
+GET         /events/:email               @controllers.ergleapi.EventsController.listEventsForEmail(email)
+PUT         /events/:email/files/        @controllers.ergleapi.FilesController.put(email)
 
-PUT        /files/                    @controllers.ergleapi.FilesController.putBare(email)
-GET        /files/:id/wrapper         @controllers.ergleapi.FilesController.wrapper(id)
-GET        /files/:id                 @controllers.ergleapi.DownloadFileController.getAttachment(id)
+GET         /events/nocontent/wrapper    @controllers.ergleapi.EventsController.noContent
 
-PUT        /emails/                   @controllers.ergleapi.EmailsController.put
-GET        /emails/:id/wrapper        @controllers.ergleapi.EmailsController.wrapper(id)
-GET        /emails/:id                @controllers.ergleapi.EmailsController.wrapper(id)
+POST        /comments                    @controllers.ergleapi.CommentsController.post(eventId)
+
+PUT         /files/                      @controllers.ergleapi.FilesController.putBare(email)
+GET         /files/:id/wrapper           @controllers.ergleapi.FilesController.wrapper(id)
+GET         /files/:id                   @controllers.ergleapi.DownloadFileController.getAttachment(id)
+
+PUT         /emails/                     @controllers.ergleapi.EmailsController.put
+GET         /emails/:id/wrapper          @controllers.ergleapi.EmailsController.wrapper(id)
+GET         /emails/:id                  @controllers.ergleapi.EmailsController.wrapper(id)
 
 
-GET        /contacts/                 @controllers.ergleapi.ContactsController.contacts()
-GET        /:email/contacts/          @controllers.ergleapi.ContactsController.contactsForEmail(email)
+GET         /contacts/                   @controllers.ergleapi.ContactsController.contacts()
+GET         /:email/contacts/            @controllers.ergleapi.ContactsController.contactsForEmail(email)
 
