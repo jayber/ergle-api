@@ -13,15 +13,26 @@ trait DataStore {
 
   val eventsCollection = db[BSONCollection]("events")
 
-  def saveEvent(ownerEmail: String, date: Option[Long], title: String, eventType: String, link: String, tag: Option[String]) = {
+  def saveEvent(ownerEmail: String, date: Option[Long], title: Option[String], eventType: String, link: Option[String], tag: Option[String], to: Seq[String], content: Option[String]) = {
     eventsCollection.insert(BSONDocument(
       "ownerEmail" -> ownerEmail,
+      "to" -> to,
       "date" -> BSONDateTime(date.getOrElse(System.currentTimeMillis())),
       "title" -> title,
       "tag" -> tag,
       "eventType" -> eventType,
-      "link" -> link
+      "link" -> link,
+      "content" -> content
     ))
+  }
+
+  def listContacts(email: String) = {
+    eventsCollection.find(BSONDocument(), BSONDocument(("to", 1))).cursor[BSONDocument].collect[Set]().
+      map { set =>
+        set.map { bdoc =>
+          bdoc.getAs[Seq[String]]("to").get
+      }.flatten
+    }
   }
 
 }

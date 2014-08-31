@@ -29,15 +29,11 @@ class ContactsController extends Controller {
     getContacts(email)
   }
 
-  def merge(set: Set[String], set2: Set[String]) = {
-    (List() ++ (set ++ set2)).sortBy(_.toString)
-  }
-
   def getContacts(email: String) = {
-    val contactsFuture = for {
-      fileContacts <- fileDataStore.listContacts(email)
-      emailContacts <- emailDataStore.listContacts(email)
-      } yield merge(fileContacts, emailContacts)
+    val contactsFuture = emailDataStore.listContacts(email).map {set =>
+      set.toList.sorted
+    }
+
     contactsFuture.map { contacts =>
       Ok(views.html.contacts(contacts))
     }

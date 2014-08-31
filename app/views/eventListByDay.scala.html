@@ -1,0 +1,63 @@
+@(results: List[Event], email: String)
+
+@import models.Event
+
+<div class="events">
+@results.size match {
+    case 0 => {
+        <ul class="eventList">
+            <li class="emptyMessage">Your work here</li>
+        </ul>
+    }
+    case _ => {
+        <ul class="dayList">
+        @for(event <- results) {
+
+            <li id="@event.id" class="@if(event.sortDate.getTime > System.currentTimeMillis) {future}"
+            day="@event.dateCategory"
+            tag="@event.tag.getOrElse("")"
+            eventtype="@event.eventType">
+                @event.title match {
+                    case Some(title) => {
+                        <div class="title">
+                            <a class="eventTitle" href="@(event.link.getOrElse(""))">
+                            @title
+                            </a>
+                        </div>
+                    }
+                    case None => {}
+                }
+
+                @event.link match {
+                    case Some(link) => {
+                        <div class="body loadable" href="@event.link/wrapper">
+                            <a class="" href="@event.link">@event.title</a>
+                        </div>
+                    }
+                    case None => {
+                        @event.content match {
+                            case Some(message) => {
+                                <div class="body">
+                                    <pre class="message">@message</pre>
+                                </div>
+                            }
+                            case None => {}
+                        }
+                    }
+                }
+
+                @event.comments match {
+                    case Some(comments) => {
+                        <div class="comments">
+                            <a href="">comments...</a>
+                        </div>
+                    }
+                    case None => {}
+                }
+            </li>
+        }
+        </ul>
+    }
+}
+</div>
+

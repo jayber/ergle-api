@@ -32,7 +32,7 @@ class FilesSpec extends Specification with Mockito {
       val dataStore = mock[FileDataStore]
       filesController.dataStore = dataStore
 
-      dataStore.saveFileEvent(any[File], anyString, anyString, any[Option[Long]], any[Option[String]]) returns Future("id")
+      dataStore.saveFileEvent(any[File], anyString, anyString, any[Option[Long]], any[Option[String]], any[Option[String]], any[Option[String]]) returns Future("id")
       val response = route(FakeRequest(PUT, "/files/?email=test@test.com&lastModified=123456")).get
 
       status(response) must equalTo(OK)

@@ -59,18 +59,6 @@ class FileDataStore extends DataStore {
     cursor.headOption
   }
 
-  def listContacts(email: String) = {
-    listFiles(None).map {
-      files => files.map {
-        //todo: should use query projection instead of post hoc mapping
-        file => file.metadata.get("email") match {
-          case Some(field: BSONString) => field.value
-          case a => a.toString
-        }
-      }.toSet
-    }
-  }
-
   def listFiles(emailOpt: Option[String]): Future[List[ReadFile[BSONValue]]] = {
     var query = emailOpt match {
       case Some(email) => BSONDocument("metadata.email" -> email)
@@ -84,14 +72,25 @@ class FileDataStore extends DataStore {
     }
   }
 
-  def saveFileEvent(file: File, name: String, email: String, lastModifiedDate: Option[Long], source: Option[String], tag: Option[String]): Future[String] = {
-    saveFileOnly(file,name,email,lastModifiedDate,source,tag).flatMap(id =>
-    saveEvent(email, lastModifiedDate, name, "file",
-      s"/files/${FilesController.fileIdFileName(id,name)}", tag).map(_ => id)
+  def saveFileEvent(file: File, name: String, email: String, lastModifiedDate: Option[Long], source: Option[String], tag: Option[String], shareTo: Option[String]): Future[String] = {
+    saveFileOnly(file, name, email, lastModifiedDate, source, tag, shareTo).flatMap(id =>
+      saveEvent(
+        email,
+        lastModifiedDate,
+        Some(name),
+        "file",
+        Some(s"/files/${FilesController.fileIdFileName(id, name)}"),
+        tag,
+        shareTo match {
+          case Some(to) => Seq(email, to)
+          case None => Seq(email)
+        },
+        None
+      ).map(_ => id)
     )
   }
 
-  def saveFileOnly(file: File, name: String, email: String, lastModifiedDate: Option[Long], source: Option[String], tag: Option[String]) = {
+  def saveFileOnly(file: File, name: String, email: String, lastModifiedDate: Option[Long], source: Option[String], tag: Option[String], shareTo: Option[String]) = {
     val fileToSave = DefaultFileToSave(name, Some("application/octet-stream"), Some(System.currentTimeMillis()),
       BSONDocument(
         ("email", email),

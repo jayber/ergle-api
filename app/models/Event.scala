@@ -36,9 +36,15 @@ object Event {
   }
 }
 
-case class Event(id:String, eventType: String, title: String, sortDate: Date, link: String, tag: Option[String], comments: Option[Array[Comment]]) {
+case class Event(id:String, eventType: String, title: Option[String], sortDate: Date, link: Option[String], tag: Option[String], to: Seq[String], content: Option[String], comments: Option[Array[Comment]]) {
   def dateCategory = {
     Event.categoriseDate(sortDate)
+  }
+
+  def withOthers(currentEmail: String) = {
+    to.filterNot {email =>
+      email == currentEmail
+    }
   }
 }
 

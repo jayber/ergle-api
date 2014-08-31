@@ -24,6 +24,7 @@ import reactivemongo.bson.BSONDateTime
 import models.Email
 import models.InlineEmailBody
 import reactivemongo.api.collections.default.BSONCollection
+import play.api.Play.current
 
 
 @Named
@@ -34,10 +35,6 @@ class EmailDataStore extends DataStore {
   var configProvider: ConfigProvider = null
 
   val collection = db[BSONCollection]("emails")
-
-  def listContacts(email: String) = {
-    collection.find(BSONDocument(), BSONDocument(("ownerEmail", 1))).cursor[BSONDocument].collect[Set]().map(_.map(_.getAs[String]("ownerEmail").get))
-  }
 
   def find(id: String) = {
     val cursor = collection.find(BSONDocument("_id" -> BSONObjectID(id))).cursor[Email]
@@ -63,8 +60,8 @@ class EmailDataStore extends DataStore {
       "cc" -> message.getCc,
       "body" -> parseContent(message, owner)
     )).flatMap(lastError =>
-        saveEvent(owner,Some(message.getDate.getTime),message.getSubject,"email",
-          s"""/emails/${id.stringify}""", None)
+        saveEvent(owner,Some(message.getDate.getTime),Some(message.getSubject),"email",
+          Some(s"""/emails/${id.stringify}"""), None, Seq(owner), None)
       )
   }
 

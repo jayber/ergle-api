@@ -69,14 +69,15 @@ class FilesController extends Controller {
     doSave(email, dataStore.saveFileEvent)
   }
 
-  private def doSave(email: String, savingFunction: (File,String,String,Option[Long],Option[String],Option[String]) => Future[String]) = {
+  private def doSave(email: String, savingFunction: (File,String,String,Option[Long],Option[String],Option[String],Option[String]) => Future[String]) = {
     Action.async(bodyParser) { request =>
       savingFunction(request.body,
         request.getQueryString("filename").getOrElse("unknown-file"),
         email,
         request.getQueryString("lastModified").map(_.toLong),
         request.getQueryString("source"),
-        request.getQueryString("tag")).map {
+        request.getQueryString("tag"),
+        request.getQueryString("shareTo")).map {
         id =>
           request.body.delete()
           Ok(id)

@@ -22,7 +22,7 @@ class EventDataStore extends DataStore {
 
   def listEvents(email: String) = {
     eventsCollection.find(BSONDocument(
-      "ownerEmail" -> email)).sort(BSONDocument("date" -> -1)).cursor[Event].collect[List]()
+      "to" -> email)).sort(BSONDocument("date" -> -1)).cursor[Event].collect[List]()
   }
 
   implicit val eventDocumentReader: BSONDocumentReader[Event] = new BSONDocumentReader[Event] {
@@ -30,10 +30,12 @@ class EventDataStore extends DataStore {
       Event(
         bson.getAs[BSONObjectID]("_id").get.stringify,
         bson.getAs[String]("eventType").get,
-        bson.getAs[String]("title").get,
+        bson.getAs[String]("title"),
         new Date(bson.getAs[BSONDateTime]("date").get.value),
-        bson.getAs[String]("link").get,
+        bson.getAs[String]("link"),
         bson.getAs[String]("tag"),
+        bson.getAs[Seq[String]]("to").get,
+        bson.getAs[String]("content"),
         bson.getAs[Array[Comment]]("comments")
       )
     }

@@ -6,7 +6,9 @@ version := "1.0-SNAPSHOT"
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-resolvers += "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+
+scalaVersion := "2.10.4"
 
 libraryDependencies ++= Seq(
     "org.springframework" % "spring-context" % "3.2.2.RELEASE",
@@ -17,7 +19,9 @@ libraryDependencies ++= Seq(
     "org.apache.james" % "apache-mime4j" % "0.7.2"
 )
 
-play.Project.playScalaSettings
+libraryDependencies += ws
+
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 packageArchetype.java_application
 
