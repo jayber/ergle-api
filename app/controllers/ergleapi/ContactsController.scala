@@ -20,22 +20,22 @@ class ContactsController extends Controller {
 
   def contacts = Action.async { request =>
     request.cookies.get("email") match {
-      case Some(cookie) => getContacts(cookie.value)
+      case Some(cookie) => getContacts(cookie.value, request.getQueryString("zoom"))
       case _ => Future(NotFound(""))
     }
   }
 
-  def contactsForEmail(email: String) = Action.async {
-    getContacts(email)
+  def contactsForEmail(email: String) = Action.async { request =>
+    getContacts(email, request.getQueryString("zoom"))
   }
 
-  def getContacts(email: String) = {
+  def getContacts(email: String, zoom: Option[String]) = {
     val contactsFuture = emailDataStore.listContacts(email).map {set =>
       set.toList.sorted
     }
 
     contactsFuture.map { contacts =>
-      Ok(views.html.contacts(contacts))
+      Ok(views.html.contacts(contacts, zoom))
     }
   }
 }

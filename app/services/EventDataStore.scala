@@ -29,6 +29,7 @@ class EventDataStore extends DataStore {
     override def read(bson: BSONDocument): Event = {
       Event(
         bson.getAs[BSONObjectID]("_id").get.stringify,
+        bson.getAs[String]("ownerEmail").get,
         bson.getAs[String]("eventType").get,
         bson.getAs[String]("title"),
         new Date(bson.getAs[BSONDateTime]("date").get.value),

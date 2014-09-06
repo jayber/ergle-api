@@ -63,7 +63,7 @@ class EmailsController extends Controller {
 
   def wrapper(id: String) = Action.async {
     dataStore.find(id).map {
-      case Some(email) => Ok(views.html.emailWrapper(email))
+      case Some(email) => Ok(views.html.wrapper(views.html.emailWrapper(email)))
       case None => NotFound(s"id $id not found")
     }
   }

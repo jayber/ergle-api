@@ -4,8 +4,9 @@ import java.util.{Calendar, Date}
 import java.text.SimpleDateFormat
 
 object Event {
-  final val dateFormat: SimpleDateFormat = new SimpleDateFormat("d MMM ''yy")
   def categoriseDate(sortDate: Date): String = {
+    val dateFormat: SimpleDateFormat = new SimpleDateFormat("d MMM ''yy")
+
     val instance: Calendar = Calendar.getInstance
     instance.setTime(sortDate)
     instance.set(Calendar.HOUR_OF_DAY, 0)
@@ -36,14 +37,14 @@ object Event {
   }
 }
 
-case class Event(id:String, eventType: String, title: Option[String], sortDate: Date, link: Option[String], tag: Option[String], to: Seq[String], content: Option[String], comments: Option[Array[Comment]]) {
+case class Event(id:String, owner: String, eventType: String, title: Option[String], sortDate: Date, link: Option[String], tag: Option[String], to: Seq[String], content: Option[String], comments: Option[Array[Comment]]) {
   def dateCategory = {
     Event.categoriseDate(sortDate)
   }
 
-  def withOthers(currentEmail: String) = {
+  def withOthers(excludeEmail: String*) = {
     to.filterNot {email =>
-      email == currentEmail
+      excludeEmail.contains(email) || email == ""
     }
   }
 }

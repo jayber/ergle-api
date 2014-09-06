@@ -1,4 +1,4 @@
-@(contacts: List[String])
+@(contacts: List[String], zoom: Option[String])
 
 
 <div id="contacts">
@@ -6,7 +6,10 @@
     <ul id="contactList">
         @for(contact <- contacts) {
             <li>
-                <a href="/@contact">@contact</a>
+                <a href="/@contact@zoom match {
+                    case Some(value) => {?zoom=@zoom}
+                    case None => {}
+                }">@contact</a>
             </li>
         }
     </ul>

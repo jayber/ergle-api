@@ -99,7 +99,7 @@ class FilesController extends Controller {
           val fileFuture = dataStore.findFileById(id)
           fileFuture.map {
             file =>
-              Ok(views.html.textWrapper(dataStore.fileText(file)))
+              Ok(views.html.wrapper(views.html.textWrapper(dataStore.fileText(file))))
           }
         case _ => Future {
           NotFound("")
@@ -109,7 +109,7 @@ class FilesController extends Controller {
 
   def imageWrapper(id: String, extension: String) = {
     Future {
-      Ok(views.html.imageWrapper(id, extension))
+      Ok(views.html.wrapper(views.html.imageWrapper(id, extension)))
     }
   }
 }

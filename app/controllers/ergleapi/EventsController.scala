@@ -51,7 +51,9 @@ class EventsController extends Controller {
 
     def getSubmittedTo: Seq[String] = {
       request.body.get("shareTo") match {
-        case Some(to) => to
+        case Some(to) => to.map(value =>
+          value.split("[\\s,;]")
+        ).flatten
         case None => Seq()
       }
     }
@@ -84,7 +86,7 @@ class EventsController extends Controller {
         }).map {
           lastError =>
             lastError.ok match {
-              case true => Redirect("/" + loggedInEmail)
+              case true => Redirect("/" + loggedInEmail, request.queryString)
               case false => InternalServerError(lastError.message)
             }
         }
@@ -100,7 +102,6 @@ class EventsController extends Controller {
   }
 
   def listEvents = Action.async { implicit request =>
-      println(request.getQueryString("zoom"))
       request.cookies.get("email") match {
         case Some(cookie) => getListEventsResult(cookie.value)
         case _ => Future(NotFound(""))
