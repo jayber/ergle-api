@@ -3,93 +3,84 @@
 @import models.Event
 
 <div class="events">
-@results.size match {
-    case 0 => {
-        <ul class="eventList">
-            <li class="emptyMessage">Your work here</li>
-        </ul>
-    }
-    case _ => {
-        <ul class="dayList">
-        @for(event <- results) {
-            <li id="@event.id" class="@if(event.sortDate.getTime > System.currentTimeMillis) {future}"
-            day="@event.dateCategory"
-            tag="@event.tag.getOrElse("")"
-            eventtype="@event.eventType"
-            date="@event.sortDate">
-                @if(event.title.nonEmpty || event.eventType == "intent" || event.owner != email || event.withOthers(email, event.owner).nonEmpty) {
-                    <div class="title">
-                        @event.title match {
-                            case Some(title) => {
-                                <a class="block" title="view details" href="/@email#@event.id"><div>@title</div></a>
-                            }
-                            case None => {}
+    <ul class="dayList">
+    @for(event <- results) {
+        <li id="@event.id" class="@if(event.sortDate.getTime > System.currentTimeMillis) {future}"
+        day="@event.dateCategory"
+        tag="@event.tag.getOrElse("")"
+        eventtype="@event.eventType"
+        date="@event.sortDate">
+            @if(event.title.nonEmpty || event.eventType == "intent" || event.owner != email || event.withOthers(email, event.owner).nonEmpty) {
+                <div class="title">
+                    @event.title match {
+                        case Some(title) => {
+                            <a class="block" title="view details" href="/@email#@event.id"><div>@title</div></a>
                         }
+                        case None => {}
+                    }
 
-                        @event.eventType match {
-                            case "intent" => {
-                                <a class="block" title="view details" href="/@email#@event.id">
-                                    <div class="time">
-                                    @event.sortDate.format("HH:mm")
-                                    </div>
-                                </a>
-                            }
-                            case _ => {}
+                    @event.eventType match {
+                        case "intent" => {
+                            <a class="block" title="view details" href="/@email#@event.id">
+                                <div class="time">
+                                @event.sortDate.format("HH:mm")
+                                </div>
+                            </a>
                         }
+                        case _ => {}
+                    }
 
-                        @if(event.owner != email) {
+                    @if(event.owner != email) {
+                        <div>
+                            from <a class="highlight" title="@event.owner" href="/@event.owner">@event.owner</a>
+                        </div>
+                    }
+
+                    @event.withOthers(email, event.owner).isEmpty match {
+                        case false => {
                             <div>
-                                from <a class="highlight" title="@event.owner" href="/@event.owner">@event.owner</a>
+                            with
+                                @for(email <- event.withOthers(email, event.owner)) {
+                                    <a class="highlight" title="@email" href="/@email">@email</a><br>
+                                }
                             </div>
                         }
+                        case _ => {}
+                    }
+                </div>
+            }
 
-                        @event.withOthers(email, event.owner).isEmpty match {
-                            case false => {
-                                <div>
-                                with
-                                    @for(email <- event.withOthers(email, event.owner)) {
-                                        <a class="highlight" title="@email" href="/@email">@email</a><br>
-                                    }
-                                </div>
-                            }
-                            case _ => {}
-                        }
+            <a class="block" title="view details" href="/@email#@event.id">
+            @event.link match {
+                case Some(link) => {
+                    <div class="body loadable" href="@event.link/wrapper">
                     </div>
                 }
-
-                <a class="block" title="view details" href="/@email#@event.id">
-                @event.link match {
-                    case Some(link) => {
-                        <div class="body loadable" href="@event.link/wrapper">
-                        </div>
-                    }
-                    case None => {
-                        @event.content match {
-                            case Some(message) => {
-                                <div class="body">
-                                    <pre class="message">@message</pre>
-                                </div>
-                            }
-                            case None => {}
+                case None => {
+                    @event.content match {
+                        case Some(message) => {
+                            <div class="body">
+                                <pre class="message">@message</pre>
+                            </div>
                         }
+                        case None => {}
                     }
                 }
-                </a>
+            }
+            </a>
 
-                @event.comments match {
-                    case Some(comments) => {
-                        <a  title="view details" class="highlight" href="/@email#@event.id">
-                        <div class="comments">
-                            comments...
-                        </div>
-                        </a>
-                    }
-                    case None => {}
+            @event.comments match {
+                case Some(comments) => {
+                    <a  title="view details" class="highlight" href="/@email#@event.id">
+                    <div class="comments">
+                        comments...
+                    </div>
+                    </a>
                 }
-            </li>
-        }
-        </ul>
+                case None => {}
+            }
+        </li>
     }
-}
+    </ul>
 </div>
 

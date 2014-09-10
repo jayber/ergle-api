@@ -28,9 +28,7 @@
                     </span>
                         @event.title match {
                             case Some(title) => {
-                                <a class="eventTitle" href="
-                                    @event.link.getOrElse("")
-                                ">
+                                <a class="eventTitle" href="@event.link.getOrElse("")">
                                 @title
                                 </a>
                             }
