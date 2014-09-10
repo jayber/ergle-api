@@ -9,7 +9,8 @@
         day="@event.dateCategory"
         tag="@event.tag.getOrElse("")"
         eventtype="@event.eventType"
-        date="@event.sortDate">
+        date="@event.sortDate"
+        categoryTime="@event.categoryDate.getTimeInMillis">
             @if(event.title.nonEmpty || event.eventType == "intent" || event.owner != email || event.withOthers(email, event.owner).nonEmpty) {
                 <div class="title">
                     @event.title match {
