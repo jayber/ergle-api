@@ -21,7 +21,7 @@ import controllers.ergleapi.FilesController
 @Singleton
 class FileDataStore extends DataStore {
 
-  val gridFS = new GridFS(db, "attachments")
+  val gridFS = new GridFS(db, "fs")
 
   def exists(email: String, filename: String, lastModified: Long) = {
     gridFS.find(BSONDocument(
@@ -85,6 +85,7 @@ class FileDataStore extends DataStore {
           case Some(to) => Seq(email, to)
           case None => Seq(email)
         },
+        None,
         None
       ).map(_ => id)
     )

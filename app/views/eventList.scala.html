@@ -1,6 +1,6 @@
 @(results: List[Event], email: String)
 
-    @import models.Event
+@import models.Event
 
     <div class="events">
     @results.size match {
@@ -10,7 +10,7 @@
             </ul>
         }
         case _ => {
-            <ul class="eventList">
+            <ul class="eventList stackable">
             @for(event <- results) {
                 <li id="@event.id" @if(event.sortDate.getTime > System.currentTimeMillis) {
                     class="future"
@@ -34,9 +34,15 @@
                             }
                             case None => {}
                         }
+                        @event.owner match {
+                            case `email` => {}
+                            case _ => {
+                                from <a href="/@event.owner">@event.owner</a>
+                            }
+                        }
                         @event.withOthers(email).isEmpty match {
                             case false => {
-                                with
+                                to
                                 @for(email <- event.withOthers(email)) {
                                     <a href="/@email">@email</a>
                                 }
@@ -50,23 +56,8 @@
                             case None => {}
                         }
                     </div>
-                    @event.link match {
-                        case Some(link) => {
-                            <div class="body loadable" href="@event.link/wrapper">
-                                <a class="" href="@event.link">@event.title</a>
-                            </div>
-                        }
-                        case None => {
-                            @event.content match {
-                                case Some(message) => {
-                                    <div class="body">
-                                        <pre class="message">@message</pre>
-                                    </div>
-                                }
-                                case None => {}
-                            }
-                        }
-                    }
+
+                    @body(event, false)
 
                 </div>
                 <div class="comments">

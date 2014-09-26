@@ -1,6 +1,7 @@
 package controllers.ergleapi
 
 import play.api.mvc._
+import reactivemongo.core.commands.LastError
 import scala.concurrent.Future
 import reactivemongo.api.gridfs.ReadFile
 import reactivemongo.bson.{BSONObjectID, BSONDateTime, BSONDocument, BSONValue}
@@ -58,31 +59,29 @@ class EventsController extends Controller {
       }
     }
 
+    def getAttachments = {
+      request.body.get("attachments").flatMap(attachments => request.body.get("filenames").map(filenames => attachments zip filenames))
+    }
+
+    def saveEvent(eventType: String, date: Option[Long], content: Option[String]): Future[LastError] = {
+      eventsDataStore.saveEvent(
+        loggedInEmail,
+        date,
+        None,
+        eventType,
+        None,
+        getSubmittedTag,
+        loggedInEmail +: getSubmittedTo,
+        content,
+        getAttachments
+      )
+    }
+
     try {
       request.body.get("type") match {
         case Some(types) => (types(0) match {
-          case "intent" =>
-            eventsDataStore.saveEvent(
-              loggedInEmail,
-              getSubmittedDate,
-              None,
-              "intent",
-              None,
-              getSubmittedTag,
-              loggedInEmail +: getSubmittedTo,
-              request.body.get("title").map(_(0))
-            )
-          case "message" =>
-            eventsDataStore.saveEvent(
-              loggedInEmail,
-              None,
-              None,
-              "message",
-              None,
-              getSubmittedTag,
-              loggedInEmail +: getSubmittedTo,
-              request.body.get("message").map(_(0))
-            )
+          case "intent" => saveEvent("intent", getSubmittedDate, request.body.get("title").map(_(0)))
+          case "message" => saveEvent("message", None, request.body.get("message").map(_(0)))
         }).map {
           lastError =>
             lastError.ok match {

@@ -60,10 +60,10 @@ class EmailsController extends Controller {
       }
   }
 
-
-  def wrapper(id: String) = Action.async {
+  def wrapper(id: String) = Action.async { request =>
     dataStore.find(id).map {
-      case Some(email) => Ok(views.html.wrapper(views.html.emailWrapper(email)))
+      case Some(email) =>
+        Ok(views.html.wrapper(views.html.emailWrapper(email, request.getQueryString("compact").exists(_=="true"))))
       case None => NotFound(s"id $id not found")
     }
   }

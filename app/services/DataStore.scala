@@ -1,10 +1,11 @@
 package services
 
+import akka.actor.FSM.->
 import reactivemongo.api.MongoDriver
 import scala.concurrent.ExecutionContext.Implicits.global
 import reactivemongo.api.collections.default.BSONCollection
 import java.util.Date
-import reactivemongo.bson.{BSONDateTime, BSONDocument}
+import reactivemongo.bson.{BSONArray, BSONDateTime, BSONDocument}
 
 trait DataStore {
   val driver = new MongoDriver
@@ -13,7 +14,14 @@ trait DataStore {
 
   val eventsCollection = db[BSONCollection]("events")
 
-  def saveEvent(ownerEmail: String, date: Option[Long], title: Option[String], eventType: String, link: Option[String], tag: Option[String], to: Seq[String], content: Option[String]) = {
+  def saveEvent(ownerEmail: String,
+                date: Option[Long],
+                title: Option[String],
+                eventType: String,
+                link: Option[String],
+                tag: Option[String],
+                to: Seq[String], content: Option[String],
+                attachments: Option[Seq[(String,String)]]) = {
     eventsCollection.insert(BSONDocument(
       "ownerEmail" -> ownerEmail,
       "to" -> to,
@@ -22,7 +30,8 @@ trait DataStore {
       "tag" -> tag,
       "eventType" -> eventType,
       "link" -> link,
-      "content" -> content
+      "content" -> content,
+      "attachments" -> attachments.map(attach => BSONArray(attach.map(pair => BSONDocument("fileId" -> pair._1, "fileName" -> pair._2))))
     ))
   }
 

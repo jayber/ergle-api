@@ -15,7 +15,7 @@
                 <div class="title">
                     @event.title match {
                         case Some(title) => {
-                            <a class="block" title="view details" href="/@email#@event.id"><div>@title</div></a>
+                            <a class="block" title="view details" href="/@email#@event.id"><div class="eventTitle">@title</div></a>
                         }
                         case None => {}
                     }
@@ -40,7 +40,7 @@
                     @event.withOthers(email, event.owner).isEmpty match {
                         case false => {
                             <div>
-                            with
+                            to
                                 @for(email <- event.withOthers(email, event.owner)) {
                                     <a class="highlight" title="@email" href="/@email">@email</a><br>
                                 }
@@ -52,30 +52,15 @@
             }
 
             <a class="block" title="view details" href="/@email#@event.id">
-            @event.link match {
-                case Some(link) => {
-                    <div class="body loadable" href="@event.link/wrapper">
-                    </div>
-                }
-                case None => {
-                    @event.content match {
-                        case Some(message) => {
-                            <div class="body">
-                                <pre class="message">@message</pre>
-                            </div>
-                        }
-                        case None => {}
-                    }
-                }
-            }
+
+            @body(event, true)
+
             </a>
 
             @event.comments match {
                 case Some(comments) => {
-                    <a  title="view details" class="highlight" href="/@email#@event.id">
-                    <div class="comments">
+                    <a  title="view details" class="highlight comments" href="/@email#@event.id">
                         comments...
-                    </div>
                     </a>
                 }
                 case None => {}

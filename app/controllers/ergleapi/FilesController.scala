@@ -42,6 +42,9 @@ class FilesController extends Controller {
   @Inject
   var dataStore: FileDataStore = null
 
+
+  val AcceptsJustText = Accepting("text/plain")
+
   val bodyParser = BodyParser({
     header: RequestHeader =>
       Await.result(dataStore.exists(
@@ -51,7 +54,6 @@ class FilesController extends Controller {
       ), 1 minute) match {
         case false =>
           val tempFile = File.createTempFile("ergle", "tmp")
-          Logger.debug(s"temp file: ${tempFile.getAbsolutePath}")
           parse.file(tempFile)(header)
         case true =>
           Logger.debug(s"duplicate file received: ${header.getQueryString("filename").get}, ${header.getQueryString("email").get}, ${header.getQueryString("lastModified").get}")
@@ -70,9 +72,10 @@ class FilesController extends Controller {
   }
 
   private def doSave(email: String, savingFunction: (File,String,String,Option[Long],Option[String],Option[String],Option[String]) => Future[String]) = {
-    Action.async(bodyParser) { request =>
+    Action.async(bodyParser) { implicit request =>
+      val origFilename = request.getQueryString("filename").getOrElse("unknown-file")
       savingFunction(request.body,
-        request.getQueryString("filename").getOrElse("unknown-file"),
+        origFilename,
         email,
         request.getQueryString("lastModified").map(_.toLong),
         request.getQueryString("source"),
@@ -80,7 +83,11 @@ class FilesController extends Controller {
         request.getQueryString("shareTo")).map {
         id =>
           request.body.delete()
-          Ok(id)
+          val filename = FilesController.synthesizeFilename(id,origFilename)
+          render {
+            case Accepts.Html() => Ok(views.html.formAttachment(origFilename, filename, id))
+            case _ => Ok(id)
+          }
       }
     }
   }
@@ -110,6 +117,12 @@ class FilesController extends Controller {
   def imageWrapper(id: String, extension: String) = {
     Future {
       Ok(views.html.wrapper(views.html.imageWrapper(id, extension)))
+    }
+  }
+
+  def options() = Action.async {
+    Future {
+      Ok("").withHeaders(("Allow","GET, PUT, POST"))
     }
   }
 }

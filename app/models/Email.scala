@@ -13,5 +13,3 @@ case class Email(owner: String,
 
 case class InlineEmailBody(mimeType: String,
                       content: String)
-
-case class AttachmentEmailBody(fileId: String, filename: String)

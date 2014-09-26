@@ -1,0 +1,8 @@
+@(origFilename: String, filename: String, id: String)
+
+<div class='attachment'>
+    <div class="title">@origFilename<a href="#" title="click to remove"><img src="/assets/images/cross.svg"></a></div>
+    <div class='loadable' href='/files/@filename/wrapper'></div>
+    <input type="hidden" name="attachments" value="@id">
+    <input type="hidden" name="filenames" value="@origFilename">
+</div>

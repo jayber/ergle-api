@@ -1,0 +1,30 @@
+@(event: Event, compact: Boolean)
+
+@event.link match {
+    case Some(link) => {
+        <div class="body loadable" href="@event.link/wrapper?compact=@compact">
+            @if(!compact) { <a class="" href="@event.link">@event.title</a> }
+        </div>
+    }
+    case None => {
+        @event.content match {
+            case Some(message) => {
+                <div class="body">
+                    <pre class="message">@message</pre>
+
+                    @event.attachments match {
+                        case Some(attachments) => {
+                            @for(current <- attachments) {
+                                @attachment(current, compact)
+                            }
+                            <div class="clear"></div>
+                        }
+                        case None => {}
+                    }
+
+                </div>
+            }
+            case None => {}
+        }
+    }
+}

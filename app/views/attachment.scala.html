@@ -1,0 +1,25 @@
+@(attachment: Attachment, compact: Boolean)
+
+@import controllers.ergleapi.FilesController
+
+<div class="attachment">
+    <div class="title">
+    @compact match {
+        case true => {
+            @attachment.fileName
+        }
+        case _ => {
+            attachment
+            <span>
+                <a class="filename" href="/files/@FilesController.synthesizeFilename(attachment.fileId, attachment.fileName)">@attachment.fileName</a>
+            </span>
+        }
+    }
+
+    </div>
+    <div class="loadable" href="/files/@FilesController.synthesizeFilename(attachment.fileId, attachment.fileName)/wrapper">
+    @if(!compact) {
+        <a class="" href="/files/@FilesController.synthesizeFilename(attachment.fileId, attachment.fileName)">@attachment.fileName</a>
+    }
+    </div>
+</div>

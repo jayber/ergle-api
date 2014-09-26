@@ -1,37 +1,20 @@
-@(email: Email)
-
-@import controllers.ergleapi.FilesController
+@(email: Email, compact: Boolean)
 
 <span class="fieldLabel">subject:</span> @email.subject,
 <span class="fieldLabel">from:</span> @email.from
 <br>
 <br>
-@for(body <- email.body ) {
+@for(body <- email.body) {
     @body match {
-    case inline: InlineEmailBody if inline.mimeType.equals("text/plain") => {
-
-<pre>
+        case inline: InlineEmailBody if inline.mimeType.equals("text/plain") => {
+            <pre>
 @inline.content
-</pre>
-
+            </pre>
+        }
+        case attachmentB: Attachment => {
+            @attachment(attachmentB, compact)
+        }
+        case _ => {}
     }
-    case attachment: AttachmentEmailBody => {
-
-<div class="attachment">
-    <div class="title">
-    attachment
-    <span>
-        <a class="filename" href="/files/@FilesController.synthesizeFilename(attachment.fileId,attachment.filename)">@attachment.filename</a>
-    </span>
-    </div>
-    <div class="loadable" href="/files/@FilesController.synthesizeFilename(attachment.fileId,attachment.filename)/wrapper">
-        <a class="" href="/files/@FilesController.synthesizeFilename(attachment.fileId,attachment.filename)">@attachment.filename</a>
-    </div>
-</div>
-
-    }
-    case _ => {}
 }
-}
-
-    <div style="clear: both"></div>
+<div style="clear : both"></div>

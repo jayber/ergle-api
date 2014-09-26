@@ -42,7 +42,7 @@ object Event {
   }
 }
 
-case class Event(id:String, owner: String, eventType: String, title: Option[String], sortDate: Date, link: Option[String], tag: Option[String], to: Seq[String], content: Option[String], comments: Option[Array[Comment]]) {
+case class Event(id:String, owner: String, eventType: String, title: Option[String], sortDate: Date, link: Option[String], tag: Option[String], to: Seq[String], content: Option[String], comments: Option[Array[Comment]], attachments: Option[Array[Attachment]]) {
   def dateCategory = {
     Event.categoriseDate(sortDate)
   }
@@ -53,7 +53,7 @@ case class Event(id:String, owner: String, eventType: String, title: Option[Stri
 
   def withOthers(excludeEmail: String*) = {
     to.filterNot {email =>
-      excludeEmail.contains(email) || email == ""
+      email == "" || excludeEmail.contains(email) || owner.contains(email)
     }
   }
 }
@@ -63,3 +63,5 @@ case class Comment(createDate: Date, email: String, content: String) {
     Event.categoriseDate(createDate)
   }
 }
+
+case class Attachment(fileId: String, fileName: String)

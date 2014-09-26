@@ -61,7 +61,7 @@ class EmailDataStore extends DataStore {
       "body" -> parseContent(message, owner)
     )).flatMap(lastError =>
         saveEvent(owner,Some(message.getDate.getTime),Some(message.getSubject),"email",
-          Some(s"""/emails/${id.stringify}"""), None, Seq(owner), None)
+          Some(s"""/emails/${id.stringify}"""), None, Seq(owner), None, None)
       )
   }
 
@@ -91,7 +91,7 @@ class EmailDataStore extends DataStore {
         ))
       case single: SingleBody if message.getDispositionType.startsWith("attachment") =>
         val requestHolder = WS.url(configProvider.config.getString(ConfigProvider.apiUrlKey) + "/files/").withRequestTimeout(1000 * 10)
-        val putFuture = requestHolder.withQueryString(
+        val putFuture = requestHolder.withHeaders(("Accept","text/plain")).withQueryString(
           ("filename", message.getFilename),
           ("email", owner),
           ("source", "email")).put({
@@ -139,7 +139,7 @@ class EmailDataStore extends DataStore {
     bodies.map{
       body =>
         body.getAs[String]("disposition") match {
-          case Some("attachment") => AttachmentEmailBody(body.getAs[String]("fileId").get, body.getAs[String]("filename").get)
+          case Some("attachment") => Attachment(body.getAs[String]("fileId").get, body.getAs[String]("filename").get)
           case _ => InlineEmailBody(body.getAs[String]("mimeType").get, body.getAs[String]("content").get)
         }
     }

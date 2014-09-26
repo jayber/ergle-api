@@ -13,6 +13,8 @@ PUT         /events/*email/files/            @controllers.ergleapi.FilesControll
 POST        /comments                        @controllers.ergleapi.CommentsController.post(eventId)
 
 PUT         /files/                          @controllers.ergleapi.FilesController.putBare(email)
+POST        /files/                          @controllers.ergleapi.FilesController.putBare(email)
+OPTIONS        /files/                          @controllers.ergleapi.FilesController.options
 GET         /files/:id/wrapper               @controllers.ergleapi.FilesController.wrapper(id)
 GET         /files/:id                       @controllers.ergleapi.DownloadFileController.getAttachment(id)
 

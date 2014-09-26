@@ -2,7 +2,7 @@ package services
 
 import javax.inject.{Singleton, Named}
 import reactivemongo.bson.{BSONObjectID, BSONDateTime, BSONDocumentReader, BSONDocument}
-import models.{Comment, Event}
+import models.{Attachment, Comment, Event}
 import java.util.Date
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -37,7 +37,8 @@ class EventDataStore extends DataStore {
         bson.getAs[String]("tag"),
         bson.getAs[Seq[String]]("to").get,
         bson.getAs[String]("content"),
-        bson.getAs[Array[Comment]]("comments")
+        bson.getAs[Array[Comment]]("comments"),
+        bson.getAs[Array[Attachment]]("attachments")
       )
     }
   }
@@ -48,6 +49,15 @@ class EventDataStore extends DataStore {
         new Date(bson.getAs[BSONDateTime]("createdDate").get.value),
         bson.getAs[String]("email").get,
         bson.getAs[String]("comment").get
+      )
+    }
+  }
+
+  implicit val attachmentDocumentReader: BSONDocumentReader[Attachment] = new BSONDocumentReader[Attachment] {
+    override def read(bson: BSONDocument): Attachment = {
+      Attachment(
+        bson.getAs[String]("fileId").get,
+        bson.getAs[String]("fileName").get
       )
     }
   }
